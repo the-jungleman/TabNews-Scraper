@@ -13,14 +13,18 @@ class Page(tk.Frame):
         tk.Frame.__init__(self,master=None)
         global  current_page
 
+    def soupfind(self,e):
+        self.soup.find(e)
+
     def show(self):
         self.lift()
 
 class   HomePage(Page):
     def __init__(self,master=None):
         tk.Frame.__init__(self, master=None)
-        soup=page_set("https://www.tabnews.com.br/")
-        self.div_post=soup.find(class_='Box-sc-g0xbh4-0 kRPWSL')
+        self.soup=page_set("https://www.tabnews.com.br/")
+        self.post_page()
+        self.div_post=self.soup.find(class_='Box-sc-g0xbh4-0 kRPWSL')
         self.div_post_elements=self.div_post.find_all(class_="Box-sc-g0xbh4-0 fXxQUH")
         for element in  self.div_post_elements:
             for tab_coins   in  self.div_post_elements:
@@ -32,12 +36,21 @@ class   HomePage(Page):
                 self.post_title=element.find(class_="Box-sc-g0xbh4-0 cMZbkX").text.strip()
                 self.widget = tk.Frame(master)
                 self.widget.pack()
-                self.button_post_page=tk.Button(self.widget,text=self.post_title+" - "+tab_coins,command=print("a")).pack()
-
+                self.button_post_page=tk.Button(self.widget,text=self.post_title+" - "+tab_coins,command=self.get_post_url).pack()
+    
+    def get_post_url(self):
+        # self.get_link=self.soupfind(self.post_title,"href")
+        # print(self.get_link)
+        # return self.soupfind(self.post_title,"href")
+        for e   in  self.post_title:
+            for a_tag in self.soup.find_all('a'):
+                self.href_value = a_tag.get('href')
+                print(self.href_value)
+        
     def post_page(self):
-        self.button_home_page=tk.Button(self, text="Pagina Inicial",  command=print(a)).pack()
-        self.label=tk.Label(self,    text="AAAAAAA")
-        self.label.pack(side="top",fill="both",expand=True)
+        for widget in self.winfo_children():
+            widget.destroy()
+        self.button_home_page=tk.Button(self, text="Pagina Inicial",  command=print("a")).pack()
 
 
 if __name__ == "__main__":
