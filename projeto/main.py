@@ -29,20 +29,20 @@ class   HomePage(Page):
                 self.widget.pack()
                 self.button_post_page=tk.Button(self.widget,text=self.post_title+" - "+tab_coins)
                 self.button_post_page.pack()
-                self.button_post_page.config(command=lambda x=self.button_post_page.cget("text"): print(x))
-    
+                self.button_post_page.config(command=lambda x=self.soup.find('a', string=self.post_title): print(x))
+
     def page_set(self,url):
         self.url=str(url)
         self.response=requests.get(url)
         return BeautifulSoup(self.response.content,'html.parser')
 
     def get_post_url(self):
-        self.href_value = self.soup.find('a', string=self.button_text)
-        for e   in  self.buttons_post:
-            for a_tag in self.soup.find('a'):
-                self.href_value = [a_tag.get('href')]   
-                print(self.href_value)
-        self.button_text = self.button_post_page['text']
+        self.href_value = self.soup.find('a', string=self.post_title)
+        # for e   in  self.buttons_post:
+            # for a_tag in self.soup.find('a'):'
+                # self.href_value = [a_tag.get('href')]   '
+                # print(self.href_value)'
+        # self.button_text = self.button_post_page['text']'
         
     # def post_page(self):
         # for widget in self.winfo_children():
