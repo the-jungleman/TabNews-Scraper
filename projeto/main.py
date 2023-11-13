@@ -3,15 +3,9 @@ import  requests
 import  tkinter as  tk
 import re
 
-def page_set(url):
-    url=str(url)
-    response=requests.get(url)
-    return BeautifulSoup(response.content,'html.parser')
-
 class Page(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self,master=None)
-        global  current_page
 
     def soupfind(self,e):
         self.soup.find(e)
@@ -22,7 +16,7 @@ class Page(tk.Frame):
 class   HomePage(Page):
     def __init__(self,master=None):
         tk.Frame.__init__(self, master=None)
-        self.soup=page_set("https://www.tabnews.com.br/")
+        self.soup=self.page_set("https://www.tabnews.com.br/")
         self.post_page()
         self.div_post=self.soup.find(class_='Box-sc-g0xbh4-0 kRPWSL')
         self.div_post_elements=self.div_post.find_all(class_="Box-sc-g0xbh4-0 fXxQUH")
@@ -36,16 +30,34 @@ class   HomePage(Page):
                 self.post_title=element.find(class_="Box-sc-g0xbh4-0 cMZbkX").text.strip()
                 self.widget = tk.Frame(master)
                 self.widget.pack()
-                self.button_post_page=tk.Button(self.widget,text=self.post_title+" - "+tab_coins,command=self.get_post_url).pack()
+                self.button_post_page=tk.Button(self.widget,text=self.post_title+" - "+tab_coins,command=self.on_button_click)
+                self.button_post_page.pack()
+
+            self.buttons=[self.button_post_page]
+            print(self.buttons)
     
+    def page_set(self,url):
+        self.url=str(url)
+        self.response=requests.get(url)
+        return BeautifulSoup(self.response.content,'html.parser')
+
+    # def get_button_text(self):
+        # self.button_text=self.button_post_page.cget('text')
+        # self.button_text=root.focus_get()
+        # print(self.button_text)
+
+    def on_button_click(self):
+        for button in self.buttons:
+            self.text_button=button.cget('text')
+            print(self.text_button)
+
     def get_post_url(self):
-        # self.get_link=self.soupfind(self.post_title,"href")
-        # print(self.get_link)
-        # return self.soupfind(self.post_title,"href")
-        for e   in  self.post_title:
-            for a_tag in self.soup.find_all('a'):
-                self.href_value = a_tag.get('href')
+        self.href_value = self.soup.find('a', string=self.button_text)
+        for e   in  self.buttons_post:
+            for a_tag in self.soup.find('a'):
+                self.href_value = [a_tag.get('href')]   
                 print(self.href_value)
+        self.button_text = self.button_post_page['text']
         
     def post_page(self):
         for widget in self.winfo_children():
@@ -54,7 +66,7 @@ class   HomePage(Page):
 
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    root=tk.Tk()
     main = HomePage(root)
     main.pack(side="left", fill="both", expand=True)
     root.mainloop()
