@@ -3,15 +3,20 @@ import  requests
 import  tkinter as  tk
 import re
 import  os,sys
+import  asyncio
 
 class Page(tk.Frame):
     def __init__(self, master=None):
         tk.Frame.__init__(self,master=None)
 
-    def show(self):
+    async   def show(self):
         self.lift()
 
-class   HomePage(Page):
+    def page_set(self,url):
+        self.response=requests.get(url)
+        return BeautifulSoup(self.response.content,'html.parser')
+
+class   HomePage(Page,tk.Frame):
     def __init__(self,master=None):
         tk.Frame.__init__(self, master=None)
         self.soup=self.page_set("https://www.tabnews.com.br/")
@@ -31,36 +36,32 @@ class   HomePage(Page):
                 self.button_post_page=tk.Button(self.widget,text=self.post_title+" - "+tab_coins)
                 
                 self.home_page_index()
+        
+        self.post_page=PostPage    
 
     def home_page_index(self):
         self.button_post_page.pack()
-        self.url_lambda=lambda x=self.soup.find('a', string=self.post_title): self.get_lambda_url(x)
-        self.post_url=self.button_post_page.config(command=self.url_lambda)
+        self.post_url=self.button_post_page.config(command=self.teste)
         self.buttons=[self.button_post_page]
         self.button_id=str(self.buttons)
 
+    async   def teste(self):
+        self.url_lambda=lambda x=self.soup.find('a', string=self.post_title): self.get_lambda_url(x)
+        await   self.post_page.show()
+
     def get_lambda_url(self,url):
-        self.clear_frame()
         self.urls=[url]
         self.url_list=[link['href'] for link in self.urls]
         self.url_string=str(self.url_list).strip('[]').strip("'")
         print(self.url_string)
-        self.post_page()
-        
-    def post_page(self):
-        self.clear_frame()
-        self.page_set("https://www.tabnews.com.br"+self.url_string)
-        # self.button_home_page=tk.Button(self, text="Pagina Inicial",  command=print("a")).pack()
-        return  self.soup.get_text()
-
-    def clear_frame(self):
-        for widget in main.winfo_children():
-            widget.destroy()
-        main.pack_forget()
-
-    def page_set(self,url):
-        self.response=requests.get(url)
-        return BeautifulSoup(self.response.content,'html.parser')
+        self.post_page.show()
+    
+class PostPage(Page,tk.Frame):
+    def __init__(self,master=None):
+        Page.__init__(self, master=None)
+        self.page_set("https://www.tabnews.com.br"+url_string)
+        self.button_home_page=tk.Button(self, text="Pagina Inicial",  command=print("a")).pack()
+        # return  self.soup.get_text()
 
 if __name__ == "__main__":
     os.system("clear")
