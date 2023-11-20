@@ -33,37 +33,34 @@ class   HomePage(Page):
                 self.home_page_index()
 
     def home_page_index(self):
-            self.button_post_page.pack()
-            self.url_lambda=lambda x=self.soup.find('a', string=self.post_title): print(x)
-            self.post_url=self.button_post_page.config(command=self.url_lambda)
-            self.buttons=[self.button_post_page]
-            
-            self.button_id=str(self.buttons)
-            
-            self.button_dic={}
-            self.button_dic["id"]=self.button_id
-            self.button_dic["a"]=self.post_url
-            
-            # print(self.button_id)
-            # for buttons in self.buttons:
-                # print(buttons)
+        self.button_post_page.pack()
+        self.url_lambda=lambda x=self.soup.find('a', string=self.post_title): self.get_lambda_url(x)
+        self.post_url=self.button_post_page.config(command=self.url_lambda)
+        self.buttons=[self.button_post_page]
+        self.button_id=str(self.buttons)
+
+    def get_lambda_url(self,url):
+        self.clear_frame()
+        self.urls=[url]
+        self.url_list=[link['href'] for link in self.urls]
+        self.url_string=str(self.url_list).strip('[]').strip("'")
+        print(self.url_string)
+        self.post_page()
+        
+    def post_page(self):
+        self.clear_frame()
+        self.page_set("https://www.tabnews.com.br"+self.url_string)
+        # self.button_home_page=tk.Button(self, text="Pagina Inicial",  command=print("a")).pack()
+        return  self.soup.get_text()
+
+    def clear_frame(self):
+        for widget in main.winfo_children():
+            widget.destroy()
+        main.pack_forget()
 
     def page_set(self,url):
-        self.url=str(url)
         self.response=requests.get(url)
         return BeautifulSoup(self.response.content,'html.parser')
-
-    # def get_post_url(self):
-            # for a_tag in self.post_url:
-                # self.href_value = [a_tag.get('href')]   
-                # print(self.href_value)
-        # self.button_text = self.button_post_page['text']
-        
-    # def post_page(self):
-        # for widget in self.winfo_children():
-            # widget.destroy()
-        # self.button_home_page=tk.Button(self, text="Pagina Inicial",  command=print("a")).pack()
-
 
 if __name__ == "__main__":
     os.system("clear")
