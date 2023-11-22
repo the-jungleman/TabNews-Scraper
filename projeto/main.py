@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import  requests
 import  tkinter as  tk
+from tkinter.ttk import *
 import re
 import  os,sys
 import  asyncio
@@ -34,34 +35,30 @@ class   HomePage(Page,tk.Frame):
                 self.widget.pack()
                 self.post_title=element.find(class_="Box-sc-g0xbh4-0 cMZbkX").text.strip()
                 self.button_post_page=tk.Button(self.widget,text=self.post_title+" - "+tab_coins)
+                self.button_post_page.pack()
                 
-                self.home_page_index()
+                self.button_post_page.config(command=self.url_lambda_function)
         
-        self.post_page=PostPage    
-
-    def home_page_index(self):
-        self.button_post_page.pack()
-        self.post_url=self.button_post_page.config(command=self.teste)
-        self.buttons=[self.button_post_page]
-        self.button_id=str(self.buttons)
-
-    async   def teste(self):
+    def url_lambda_function(self):
         self.url_lambda=lambda x=self.soup.find('a', string=self.post_title): self.get_lambda_url(x)
-        await   self.post_page.show()
+        PostPage(root, url_string=self.url_lambda())
 
     def get_lambda_url(self,url):
         self.urls=[url]
         self.url_list=[link['href'] for link in self.urls]
         self.url_string=str(self.url_list).strip('[]').strip("'")
-        print(self.url_string)
-        self.post_page.show()
-    
-class PostPage(Page,tk.Frame):
-    def __init__(self,master=None):
-        Page.__init__(self, master=None)
-        self.page_set("https://www.tabnews.com.br"+url_string)
-        self.button_home_page=tk.Button(self, text="Pagina Inicial",  command=print("a")).pack()
-        # return  self.soup.get_text()
+        return  self.url_string
+
+class PostPage(HomePage,tk.Frame,tk.Toplevel):
+    def __init__(self, master = None,url_string=None):
+        tk.Frame.__init__(self, master=None,)
+        self.soup = self.page_set(f"https://www.tabnews.com.br{url_string}")
+        self.post_page_window = tk.Toplevel(root)
+
+        self.widget = tk.Frame(master)
+        self.widget.pack()
+        self.button_aa=tk.Button(self.widget, text="aaa").pack
+
 
 if __name__ == "__main__":
     os.system("clear")
