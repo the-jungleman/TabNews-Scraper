@@ -1,11 +1,8 @@
 from bs4 import BeautifulSoup
-import  requests
+import  requests,re,html2text,os,sys,time,subprocess
 import  tkinter as  tk
 from tkinter.ttk import *
 from tkhtmlview import HTMLLabel,HTMLText
-import re
-import html2text
-import  os,sys
 
 class Page(tk.Frame):
     def __init__(self, master=None):
@@ -13,7 +10,7 @@ class Page(tk.Frame):
     
     def close_window(self):
         self.master.destroy()
-
+    
 class   HomePage(Page,tk.Frame):
     def __init__(self,master):
         tk.Frame.__init__(self,master)
@@ -32,6 +29,7 @@ class   HomePage(Page,tk.Frame):
                 self.regex_syntax = r"\D"
                 self.num_str = re.sub(self.regex_syntax, "", tab_coins)
                 self.tab_coins_num = int(self.num_str)
+            
             if  self.tab_coins_num>10:
                 self.widget = tk.Frame(master)
                 self.widget.pack()
@@ -53,14 +51,20 @@ class   HomePage(Page,tk.Frame):
         self.urls=[url]
         self.url_list=[link['href'] for link in self.urls]
         self.url_string=str(self.url_list).strip('[]').strip("'")
-        self.new_window()
-
-    def new_window(self):
-        self.new_window=tk.Toplevel(self.master)
-        self.app=PostPage(self.new_window,)
+        self.open_postpage()
     
-    def close_hp_window(self):
-        self.root.destroy()
+    def open_postpage(self):
+        self.new_window(PostPage)
+        time.sleep(1)
+        self.close_window()
+
+    def new_window(self,window_class):
+        self.new_window=tk.Toplevel(self.master)
+        self.app=window_class(self.new_window,)
+    
+    # async   def close_hp_window(self):
+        # await   asyncio.sleep(1)   
+        # self.master.destroy()
 
 class PostPage(HomePage,tk.Frame,tk.Toplevel):
     def __init__(self, master,):
@@ -68,10 +72,7 @@ class PostPage(HomePage,tk.Frame,tk.Toplevel):
         self.frame=tk.Frame(master)
         master.title("a")
 
-        # self.home_page=HomePage(self)
-        # self.home_page.close_hp_window()
-
-        self.quitButton = tk.Button(self.frame, text = 'Quit', width = 25, command = self.close_window)
+        self.quitButton = tk.Button(self.frame, text = 'Quit', width = 25, command = self.close_post_window)
         self.quitButton.pack()
 
         self.frame.pack()
@@ -89,11 +90,18 @@ class PostPage(HomePage,tk.Frame,tk.Toplevel):
         self.html_label.pack(expand=True, fill='both')
         self.html_label.set_html(rendered_html)
 
-    # def close_window_post(self):
-        # self.master.destroy()
+    def render_homepage(self):
+        self.new_window(HomePage)
+
+    def close_post_window(self):
+        self.close_window()
+        self.render_homepage()
+
+    # def recreate_homepage(self):
         # self.top=tk.Toplevel(self.master)
         # top.HomePage(self)
         # HomePage.tk.Toplevel(self.master)
+        # asyncio.create_task(self.master.destroy())
 
 if __name__ == "__main__":
     os.system("clear")
