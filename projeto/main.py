@@ -14,7 +14,10 @@ class Page(tk.Frame):
 class   HomePage(Page,tk.Frame):
     def __init__(self,master):
         tk.Frame.__init__(self,master)
-
+        
+        self.widget = tk.Frame(master)
+        self.widget.pack()
+    
         url=("https://www.tabnews.com.br/")
         self.response=requests.get(url)
         self.soup=BeautifulSoup(self.response.content,'html.parser')
@@ -31,8 +34,6 @@ class   HomePage(Page,tk.Frame):
                 self.tab_coins_num = int(self.num_str)
             
             if  self.tab_coins_num>10:
-                self.widget = tk.Frame(master)
-                self.widget.pack()
                 self.post_title=element.find(class_="Box-sc-g0xbh4-0 cMZbkX").text.strip()
                 self.button_post_page=tk.Button(self.widget,text=self.post_title+" - "+tab_coins)
                 self.button_post_page.pack()
@@ -55,22 +56,17 @@ class   HomePage(Page,tk.Frame):
     
     def open_postpage(self):
         self.new_window(PostPage)
-        time.sleep(1)
-        self.close_window()
 
     def new_window(self,window_class):
         self.new_window=tk.Toplevel(self.master)
         self.app=window_class(self.new_window,)
     
-    # async   def close_hp_window(self):
-        # await   asyncio.sleep(1)   
-        # self.master.destroy()
-
 class PostPage(HomePage,tk.Frame,tk.Toplevel):
     def __init__(self, master,):
         self.master=master
         self.frame=tk.Frame(master)
-        master.title("a")
+        master.title(main.post_title)
+
 
         self.quitButton = tk.Button(self.frame, text = 'Quit', width = 25, command = self.close_post_window)
         self.quitButton.pack()
@@ -90,18 +86,18 @@ class PostPage(HomePage,tk.Frame,tk.Toplevel):
         self.html_label.pack(expand=True, fill='both')
         self.html_label.set_html(rendered_html)
 
+        main.widget.destroy()
+
     def render_homepage(self):
-        self.new_window(HomePage)
+        self.master.destroy()  # Destroi a janela atual
+        root = tk.Tk()  # Cria uma nova instância do Tk
+        main = HomePage(root)
+        main.pack(side="left", fill="both", expand=True)
+        root.mainloop()
 
     def close_post_window(self):
-        self.close_window()
+        self.master.destroy()  # Destroi a janela atual (Toplevel)
         self.render_homepage()
-
-    # def recreate_homepage(self):
-        # self.top=tk.Toplevel(self.master)
-        # top.HomePage(self)
-        # HomePage.tk.Toplevel(self.master)
-        # asyncio.create_task(self.master.destroy())
 
 if __name__ == "__main__":
     os.system("clear")
