@@ -4,24 +4,17 @@ import  tkinter as  tk
 from tkinter.ttk import *
 from tkhtmlview import HTMLLabel,HTMLText
 
-class Page(tk.Frame):
-    def __init__(self, master=None):
-        tk.Frame.__init__(self,master=None)
-    
-    def close_window(self):
-        self.master.destroy()
-    
-class   HomePage(Page,tk.Frame):
+class   HomePage(tk.Frame):
     def __init__(self,master):
         tk.Frame.__init__(self,master)
-        
+        self.master=master
+        master.title("TabNews Scraper")
         self.widget = tk.Frame(master)
         self.widget.pack()
-    
+
         url=("https://www.tabnews.com.br/")
         self.response=requests.get(url)
         self.soup=BeautifulSoup(self.response.content,'html.parser')
-
 
         self.div_post=self.soup.find(class_='Box-sc-g0xbh4-0 kRPWSL')
         self.div_post_elements=self.div_post.find_all(class_="Box-sc-g0xbh4-0 fXxQUH")
@@ -41,7 +34,7 @@ class   HomePage(Page,tk.Frame):
                 self.button_post_page.config(command=self.url_lambda_function)
         
             self.url_lambda_function()
-        
+    
     def url_lambda_function(self):
         self.url_lambda=lambda x=self.soup.find('a', string=self.post_title): self.get_lambda_url(x)
         self.post_url=self.button_post_page.config(command=self.url_lambda)
@@ -55,23 +48,22 @@ class   HomePage(Page,tk.Frame):
         self.open_postpage()
     
     def open_postpage(self):
-        self.new_window(PostPage)
+        self.new_window(PostPage,self)
 
-    def new_window(self,window_class):
+    def new_window(self,window_class,main_instance):
         self.new_window=tk.Toplevel(self.master)
-        self.app=window_class(self.new_window,)
-    
+        self.app=window_class(self.new_window,main_instance)
+
 class PostPage(HomePage,tk.Frame,tk.Toplevel):
-    def __init__(self, master,):
+    def __init__(self, master,main_instance):
         self.master=master
-        self.frame=tk.Frame(master)
         master.title(main.post_title)
-
-
-        self.quitButton = tk.Button(self.frame, text = 'Quit', width = 25, command = self.close_post_window)
-        self.quitButton.pack()
-
+        self.frame=tk.Frame(master)
         self.frame.pack()
+        self.main=main_instance
+
+        self.quitButton = tk.Button(self.frame, text = 'Quit', width = 25, command = self.render_homepage)
+        self.quitButton.pack()
 
         self.post_link=f"https://www.tabnews.com.br{main.url_string}"
         self.response=requests.get(self.post_link)
@@ -80,24 +72,20 @@ class PostPage(HomePage,tk.Frame,tk.Toplevel):
         
         rendered_html=html2text.html2text(str(soup))
 
-        self.html_text_label=tk.Label(self.frame,text=rendered_html,width=80, height=20)
+        self.html_text_label=tk.Label(self.frame,text=rendered_html)
 
         self.html_label=HTMLLabel(self.frame,html="")
         self.html_label.pack(expand=True, fill='both')
         self.html_label.set_html(rendered_html)
 
-        main.widget.destroy()
 
     def render_homepage(self):
-        self.master.destroy()  # Destroi a janela atual
-        root = tk.Tk()  # Cria uma nova instância do Tk
+        self.main.widget.destroy()
+        self.master.destroy()
+        root = tk.Tk()
         main = HomePage(root)
         main.pack(side="left", fill="both", expand=True)
         root.mainloop()
-
-    def close_post_window(self):
-        self.master.destroy()  # Destroi a janela atual (Toplevel)
-        self.render_homepage()
 
 if __name__ == "__main__":
     os.system("clear")
